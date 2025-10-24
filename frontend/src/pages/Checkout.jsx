@@ -20,7 +20,7 @@ export default function Checkout() {
       localStorage.setItem("lastBooking", JSON.stringify(lastBooking));
 
       // ✅ Step 2: Continue Stripe payment flow
-      const res = await fetch("http://localhost:5000/payment", {
+      const res = await fetch("https://movie-booking-app-n4p0.onrender.com/payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
