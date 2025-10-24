@@ -1,0 +1,3 @@
+- [x] Fix route case in App.js: change "/Success" to "/success"
+- [x] Update Checkout.jsx: add seats and date to lastBooking
+- [x] Update Success.jsx: after backend save, add to "mb_orders" localStorage

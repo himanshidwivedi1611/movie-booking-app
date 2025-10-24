@@ -1,0 +1,143 @@
+/* fileName: Home.css (Update/replace content) */
+
+.home-banner-area {
+    position: relative;
+    width: 100%;
+    height: 350px; /* Reduced height for a banner look */
+    overflow: hidden;
+    margin-bottom: 40px;
+}
+
+.promo-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7); /* Slightly darken the image for text contrast */
+}
+
+.banner-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+    z-index: 5;
+}
+
+.banner-overlay h2 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.banner-overlay p {
+    font-size: 1.1em;
+}
+
+/* Category Grid Styles */
+.categories-section {
+    max-width: 1200px;
+    margin: 0 auto 40px auto;
+    padding: 0 20px;
+}
+
+.categories-section h3 {
+    color: var(--text-light);
+    border-bottom: 2px solid var(--secondary-color);
+    display: inline-block;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.category-card {
+    background: var(--bg-medium); /* Dark card background */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow-dark);
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+}
+
+.category-card h4 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+.category-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 15px;
+    background: var(--secondary-color);
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+/* fileName: Home.css (Append these new styles) */
+
+/* --- Recommended Movies Section --- */
+.recommended-movies {
+  background-color: #0f1014; /* same dark bg as BookMyShow */
+  color: #fff;
+  padding: 30px 40px;
+}
+
+.recommended-movies h3 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Horizontal alignment of movie cards */
+.movie-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;              /* spacing between cards */
+  scroll-behavior: smooth;
+  padding-bottom: 10px;
+}
+
+/* Hide vertical overflow */
+.movie-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.movie-carousel::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+/* --- Movie card styling (optional for equal size) --- */
+.movie-card {
+  flex: 0 0 180px;        /* fixed width for each card */
+  text-align: center;
+  color: #fff;
+  transition: transform 0.3s ease;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+}
+
+.poster-wrapper {
+  width: 100%;
+  height: 270px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
