@@ -6,36 +6,42 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
-app.use(cors());
-app.use(express.json());
+// ✅ CORS middleware (before everything else)
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 
+// ✅ Raw body must be available only for /webhook
+app.use((req, res, next) => {
+  if (req.originalUrl === "/webhook") {
+    next(); // Skip JSON parsing for Stripe webhook
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
+// ✅ Connect MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB error:", err));
 
-// ✅ MOVE THIS LINE ABOVE app.use
+// ✅ Auth routes
 const authRoutes = require("./routes/auth");
-
-// Auth routes
 app.use("/api/auth", authRoutes);
 
-// Serve static files (if any)
-app.use(express.static("public"));
-
-// Test route
+// ✅ Test route
 app.get("/", (req, res) => {
   res.send("✅ Stripe backend is running successfully!");
 });
 
-// Payment route
+// ✅ Payment route
 app.post("/payment", async (req, res) => {
   try {
     const { amount, movieTitle } = req.body;
-    const Booking = require("./models/Booking");
     console.log("Creating payment for", movieTitle, "₹" + amount);
 
     const session = await stripe.checkout.sessions.create({
@@ -51,8 +57,8 @@ app.post("/payment", async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: "http://localhost:3000/success",
-      cancel_url: "http://localhost:3000/cancel",
+      success_url: `${FRONTEND_URL}/success`,
+      cancel_url: `${FRONTEND_URL}/cancel`,
     });
 
     res.json({ url: session.url });
@@ -62,7 +68,7 @@ app.post("/payment", async (req, res) => {
   }
 });
 
-// ✅ Add booking route (after payment)
+// ✅ Manual booking save route (still valid)
 app.post("/api/bookings", async (req, res) => {
   try {
     const Booking = require("./models/Booking");
@@ -83,6 +89,37 @@ app.post("/api/bookings", async (req, res) => {
   }
 });
 
+// ✅ Stripe Webhook route (must come AFTER middleware fix)
+app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error("❌ Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // ✅ Handle successful payment
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    console.log("✅ Payment confirmed for session:", session.id);
+
+    const Booking = require("./models/Booking");
+    const newBooking = new Booking({
+      userId: session.client_reference_id || "guest",
+      movieTitle: session.metadata?.movieTitle || "Unknown Movie",
+      amount: session.amount_total / 100,
+    });
+
+    newBooking.save().then(() => console.log("✅ Booking stored via webhook"));
+  }
+
+  res.json({ received: true });
+});
+
+// ✅ Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);
 });

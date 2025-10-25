@@ -1,5 +1,7 @@
 import React from "react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Checkout() {
   const booking = JSON.parse(sessionStorage.getItem("mb_booking") || "null");
   if (!booking) return <div>No booking found.</div>;
@@ -20,7 +22,7 @@ export default function Checkout() {
       localStorage.setItem("lastBooking", JSON.stringify(lastBooking));
 
       // ✅ Step 2: Continue Stripe payment flow
-      const res = await fetch("https://movie-booking-app-n4p0.onrender.com/payment", {
+      const res = await fetch(`${API_URL}/payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
