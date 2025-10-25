@@ -10,33 +10,34 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// ✅ Use your local or deployed frontend
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
+// ✅ MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB error:", err));
+  .catch((err) => console.error("❌ MongoDB error:", err));
 
-// ✅ MOVE THIS LINE ABOVE app.use
+// ✅ Import routes
 const authRoutes = require("./routes/auth");
-
-// Auth routes
 app.use("/api/auth", authRoutes);
 
-// Serve static files (if any)
-app.use(express.static("public"));
-
-// Test route
+// ✅ Test route
 app.get("/", (req, res) => {
   res.send("✅ Stripe backend is running successfully!");
 });
 
-// Payment route
+// ✅ Payment route
 app.post("/payment", async (req, res) => {
   try {
     const { amount, movieTitle } = req.body;
     const Booking = require("./models/Booking");
     console.log("Creating payment for", movieTitle, "₹" + amount);
+    console.log("Using success URL:", `${FRONTEND_URL}/success`);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -51,8 +52,8 @@ app.post("/payment", async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: "https://project-movie-booking.netlify.app/success",
-      cancel_url: "https://project-movie-booking.netlify.app/cancel",
+      success_url: `${FRONTEND_URL}/success`,
+      cancel_url: `${FRONTEND_URL}/cancel`,
     });
 
     res.json({ url: session.url });
@@ -62,7 +63,7 @@ app.post("/payment", async (req, res) => {
   }
 });
 
-// ✅ Add booking route (after payment)
+// ✅ Booking route
 app.post("/api/bookings", async (req, res) => {
   try {
     const Booking = require("./models/Booking");
@@ -85,4 +86,5 @@ app.post("/api/bookings", async (req, res) => {
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🌐 FRONTEND_URL set to: ${FRONTEND_URL}`);
 });

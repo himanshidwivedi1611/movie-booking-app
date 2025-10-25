@@ -1,3 +1,3 @@
-- [x] Fix route case in App.js: change "/Success" to "/success"
-- [x] Update Checkout.jsx: add seats and date to lastBooking
-- [x] Update Success.jsx: after backend save, add to "mb_orders" localStorage
+- Update Stripe success and cancel URLs in backend/server.js to localhost:3000 ✅
+- Update home links in backend/public/success.html and cancel.html to localhost:3000 ✅
+- Test local payment flow: Backend running on port 5000, frontend on port 3000. Payment flow should now redirect to localhost URLs. ✅ API tested successfully, returns Stripe checkout URL.
