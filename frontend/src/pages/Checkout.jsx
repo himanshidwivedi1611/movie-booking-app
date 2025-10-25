@@ -8,9 +8,13 @@ export default function Checkout() {
 
   const handlePay = async () => {
     try {
-      // ✅ Step 1: Save booking info before payment
+      // ✅ Step 1: Get user ID if logged in
+      const user = JSON.parse(localStorage.getItem("mb_user") || "null");
+      const userId = user ? user.id : "guest";
+
+      // ✅ Step 2: Save booking info before payment
       const lastBooking = {
-        userId: "guest", // later replace with logged-in user ID or email if available
+        userId,
         movieTitle: booking.title,
         amount: total,
         seats: booking.seats,
@@ -19,7 +23,7 @@ export default function Checkout() {
       };
       localStorage.setItem("lastBooking", JSON.stringify(lastBooking));
 
-      // ✅ Step 2: Continue Stripe payment flow
+      // ✅ Step 3: Continue Stripe payment flow
       const res = await fetch("http://localhost:5000/payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
